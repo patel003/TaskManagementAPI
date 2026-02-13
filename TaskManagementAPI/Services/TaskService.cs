@@ -5,7 +5,7 @@ using TaskManagementAPI.Models;
 
 namespace TaskManagementAPI.Services
 {
-    public class TaskService:ITaskService
+    public class TaskService : ITaskService
     {
         private readonly ApplicationDbContext _context;
         public TaskService(ApplicationDbContext context)
@@ -42,7 +42,7 @@ namespace TaskManagementAPI.Services
         {
             var tasks = await _context.TaskItems
                 .Where(t => t.UserId == userId)
-                .OrderByDescending(t=> t.CreatedAt)
+                .OrderByDescending(t => t.CreatedAt)
                 .Select(t => new TaskResponseDto
                 {
                     Id = t.Id,
@@ -80,6 +80,82 @@ namespace TaskManagementAPI.Services
                 throw new KeyNotFoundException("Task not found");
             }
             return task;
+        }
+
+        public async Task<TaskResponseDto> UpdateTaskAsync(int taskId, UpdateTaskDto updateTaskDto, int userId)
+        {
+            var task = await _context.TaskItems.FirstOrDefaultAsync(t => t.Id == taskId && t.UserId == userId);
+            if (task == null)
+            {
+                return null;
+            }
+            if (updateTaskDto.Title != null)
+            {
+                task.Title = updateTaskDto.Title;
+            }
+            if (updateTaskDto.Description != null)
+            {
+                task.Description = updateTaskDto.Description;
+            }
+            if (updateTaskDto.IsCompleted.HasValue)
+            {
+                task.IsCompleted = updateTaskDto.IsCompleted.Value;
+            }
+            if (updateTaskDto.Priority.HasValue)
+            {
+                task.Priority = updateTaskDto.Priority.Value;
+            }
+            if (updateTaskDto.DueDate.HasValue)
+            {
+                task.DueDate = updateTaskDto.DueDate.Value;
+            }
+
+
+            await _context.SaveChangesAsync();
+            return new TaskResponseDto
+            {
+                Id = task.Id,
+                Title = task.Title,
+                Description = task.Description,
+                IsCompleted = task.IsCompleted,
+                Priority = task.Priority,
+                DueDate = task.DueDate,
+                CreatedAt = task.CreatedAt,
+                UserId = task.UserId
+            };
+        }
+        public async Task<bool> DeleteTaskAsync(int taskId, int userId)
+        {
+            var task = await _context.TaskItems.FirstOrDefaultAsync(t => t.Id == taskId && t.UserId == userId);
+            if (task == null)
+            {
+                return false;
+            }
+            _context.TaskItems.Remove(task);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<TaskResponseDto> ToggelTaskComletionAsync(int taskId, int userId)
+        {
+            var task = await _context.TaskItems.FirstOrDefaultAsync(t => t.Id == taskId && t.UserId == userId);
+            if (task == null)
+            {
+                return null;
+            }
+            task.IsCompleted = !task.IsCompleted;
+            await _context.SaveChangesAsync();
+            return new TaskResponseDto
+            {
+                Id = task.Id,
+                Title = task.Title,
+                Description = task.Description,
+                IsCompleted = task.IsCompleted,
+                Priority = task.Priority,
+                DueDate = task.DueDate,
+                CreatedAt = task.CreatedAt,
+                UserId = task.UserId
+            };
         }
     }
 }

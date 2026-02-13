@@ -14,8 +14,8 @@ namespace TaskManagementAPI.DTOs
         public bool? IsCompleted { get; set; }
 
         [Range(1, 3, ErrorMessage = "Priority must be 1 (Low),2 (Medium) or 3 (High)")]
-        public int Priority { get; set; } 
+        public int? Priority { get; set; } 
 
-        public DateTime DeuDate { get; set; }
+        public DateTime? DueDate { get; set; }
     }
 }
