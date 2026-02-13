@@ -19,6 +19,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Register AuthService 
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddScoped<ITaskService, TaskService>();
+
 // Configure JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
