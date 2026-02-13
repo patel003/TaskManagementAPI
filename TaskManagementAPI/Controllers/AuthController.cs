@@ -37,5 +37,28 @@ namespace TaskManagementAPI.Controllers
                 return StatusCode(500, new { message = "An error occurred while during Registration", details = ex.Message });
             }
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        {
+            try
+            {
+                var loginResponse = await _authService.LoginAsync(loginDto);
+                if (loginResponse == null)
+                {
+                    return Unauthorized("Invalid username or password");
+                }
+                return Ok(loginResponse);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while during Login", details = ex.Message });
+            }
+        }
     }
 }
